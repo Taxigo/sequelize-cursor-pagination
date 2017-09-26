@@ -51,6 +51,7 @@ function withPagination(options) {
       let limit = options.limit;
       let before = options.before;
       let after = options.after;
+      let subQuery = options.subQuery || false;
 
       const decodedBefore = !!before ? decodeCursor(before) : null;
       const decodedAfter = !!after ? decodeCursor(after) : null;
@@ -73,12 +74,12 @@ function withPagination(options) {
       return model.findAll({
         attributes: attributes,
         where: whereQuery,
-        include: include,
+        include,
         limit: limit + 1,
         order: [
           cursorOrderIsDesc ? [paginationField, 'DESC'] : paginationField
         ],
-        raw: raw,
+        subQuery: subQuery
       }).then(results => {
         const hasMore = results.length > limit;
   
