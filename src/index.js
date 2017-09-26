@@ -36,7 +36,7 @@ function getPaginationQuery(cursor, cursorOrderOperator, paginationField, primar
 
 function withPagination({ methodName = 'paginate', primaryKeyField = 'id' } = {}) {
   return model => {
-    const paginate = ({ where = {}, include = [], limit, before, after, desc = false, paginationField = primaryKeyField, raw = true }) => {
+    const paginate = ({ where = {}, include = [], limit, before, after, desc = false, paginationField = primaryKeyField, raw = true, attributes = [] }) => {
       const decodedBefore = !!before ? decodeCursor(before) : null;
       const decodedAfter = !!after ? decodeCursor(after) : null;
       const cursorOrderIsDesc = before ? !desc : desc;
@@ -56,6 +56,7 @@ function withPagination({ methodName = 'paginate', primaryKeyField = 'id' } = {}
         : where;
   
       return model.findAll({
+        attributes: attributes,
         where: whereQuery,
         include,
         limit: limit + 1,
