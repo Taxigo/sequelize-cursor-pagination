@@ -74,7 +74,7 @@ function withPagination(options) {
       return model.findAll({
         attributes: attributes,
         where: whereQuery,
-        include,
+        include: include,
         limit: limit + 1,
         order: [
           cursorOrderIsDesc ? [paginationField, 'DESC'] : paginationField
