@@ -1,3 +1,4 @@
+'use strict';
 const base64 = require('base-64');
 
 function decodeCursor(cursor) {
@@ -34,9 +35,23 @@ function getPaginationQuery(cursor, cursorOrderOperator, paginationField, primar
   }
 }
 
-function withPagination({ methodName = 'paginate', primaryKeyField = 'id' } = {}) {
+function withPagination(options) {
+  let methodName = options.methodName || 'paginate';
+  let primaryKeyField = options.primaryKeyField || 'id';
+
   return model => {
-    const paginate = ({ where = {}, include = [], limit, before, after, desc = false, paginationField = primaryKeyField, raw = true, attributes = [] }) => {
+    const paginate = function (options){
+      //where, include, limit, before, after, desc, paginationField, raw, attributes
+      let where = options.where || {};
+      let include = options.include || [];
+      let desc = options.desc || false;
+      let paginationField = options.paginationField || primaryKeyField;
+      let raw = options.raw || false;
+      let attributes = options.attributes || [];
+      let limit = options.limit;
+      let before = options.before;
+      let after = options.after;
+
       const decodedBefore = !!before ? decodeCursor(before) : null;
       const decodedAfter = !!after ? decodeCursor(after) : null;
       const cursorOrderIsDesc = before ? !desc : desc;
@@ -54,15 +69,14 @@ function withPagination({ methodName = 'paginate', primaryKeyField = 'id' } = {}
       const whereQuery = paginationQuery
         ? { $and: [paginationQuery, where] }
         : where;
-  
+
       return model.findAll({
         attributes: attributes,
         where: whereQuery,
-        include,
+        include: include,
         limit: limit + 1,
         order: [
-          cursorOrderIsDesc ? [paginationField, 'DESC'] : paginationField,
-          ...(paginationFieldIsNonId ? [primaryKeyField] : []),
+          cursorOrderIsDesc ? [paginationField, 'DESC'] : paginationField
         ],
         raw: raw,
       }).then(results => {
