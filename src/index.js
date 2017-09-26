@@ -79,7 +79,8 @@ function withPagination(options) {
         order: [
           cursorOrderIsDesc ? [paginationField, 'DESC'] : paginationField
         ],
-        subQuery: subQuery
+        subQuery: subQuery,
+        raw: raw
       }).then(results => {
         const hasMore = results.length > limit;
   
